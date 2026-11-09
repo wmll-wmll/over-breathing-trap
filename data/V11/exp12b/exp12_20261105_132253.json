@@ -1,0 +1,256 @@
+{
+  "args": {
+    "arms": "FIXED_BOUND",
+    "worlds": "B",
+    "seeds": "0",
+    "max_steps": 350,
+    "energy_reward_coef": 0.3,
+    "device": "",
+    "out": "data/V11/exp12b"
+  },
+  "arms": {
+    "OLD_FULL": {
+      "gamma": "coef",
+      "limit": false,
+      "move": false
+    },
+    "OLD_MONO": {
+      "gamma": "coef",
+      "limit": true,
+      "move": false
+    },
+    "NEW_FULL": {
+      "gamma": "step",
+      "limit": false,
+      "move": false
+    },
+    "NEW_MONO": {
+      "gamma": "step",
+      "limit": true,
+      "move": false
+    },
+    "FULL": {
+      "gamma": "step",
+      "limit": true,
+      "move": true
+    },
+    "FIXED": {
+      "gamma": "step",
+      "limit": true,
+      "move": true
+    },
+    "FIXED_BOUND": {
+      "gamma": "step",
+      "limit": true,
+      "move": true,
+      "mode": "fixed"
+    },
+    "TRACK_EXCESS": {
+      "gamma": "step",
+      "limit": true,
+      "move": true,
+      "mode": "excess"
+    }
+  },
+  "arm_desc": {
+    "OLD_FULL": "旧 γ + 全开区间（实验 8-11 的配置）",
+    "OLD_MONO": "旧 γ + 单调区间",
+    "NEW_FULL": "新 γ + 全开区间",
+    "NEW_MONO": "新 γ + 单调区间",
+    "FULL": "新 γ + 单调区间 + 运动耗能",
+    "FIXED": "★ 推荐配置：实测正确的 γ + 单调区间 + 运动耗能",
+    "FIXED_BOUND": "★ 实验 F：上界固定 k*(L_ref)，不随光变（2×2 的「只限制」格）",
+    "TRACK_EXCESS": "★ 实验 F：上界 = 2·k*(light)，随光变但允许越过峰值（「只锚定」格）"
+  },
+  "worlds": {
+    "A": {
+      "sigma": 600.0,
+      "light_amp": 0.0,
+      "light_period": 0.0,
+      "spawn_min": 505.0,
+      "spawn_span": 40.0
+    },
+    "B": {
+      "sigma": 250.0,
+      "light_amp": 300.0,
+      "light_period": 150.0,
+      "spawn_min": 800.0,
+      "spawn_span": 200.0
+    }
+  },
+  "generations": 12,
+  "g_star": 159.2026600133103,
+  "results": {
+    "B:FIXED_BOUND:seed0": {
+      "arm": "FIXED_BOUND",
+      "desc": "★ 实验 F：上界固定 k*(L_ref)，不随光变（2×2 的「只限制」格）",
+      "gamma_mode": "step",
+      "limit_useful": true,
+      "bound_mode": "fixed",
+      "light_ref": 0.411,
+      "account_move": true,
+      "world": "B",
+      "world_desc": "★ 移动光源 σ=250，±300 单位 / 150 拍（实验 11 的世界）",
+      "seed": 0,
+      "generations": 12,
+      "max_steps": 350,
+      "mean_beats": 322.5833333333333,
+      "std_beats": 34.13565665921128,
+      "n_survived": 7,
+      "k_temporal_std": 0.04799209791387543,
+      "k_generation_std": 0.11879779277172448,
+      "k_min": 0.05520942062139511,
+      "k_max": 0.45856577157974243,
+      "k_last3": 0.4177177443571202,
+      "final_norm_last": 0.27174208984375,
+      "wall_seconds": 44.93908667564392,
+      "history": [
+        {
+          "gen": 1,
+          "beats": 350,
+          "cause": "max_steps",
+          "survived": true,
+          "mean_k": 0.36596750063555583,
+          "std_k": 0.04416459935504669,
+          "min_k": 0.2325413078069687,
+          "max_k": 0.40222910046577454,
+          "mean_light": 0.43412301390099206,
+          "final_norm": 0.3620115234375
+        },
+        {
+          "gen": 2,
+          "beats": 350,
+          "cause": "max_steps",
+          "survived": true,
+          "mean_k": 0.4146974699837821,
+          "std_k": 0.03676884491906088,
+          "min_k": 0.3170962333679199,
+          "max_k": 0.44591474533081055,
+          "mean_light": 0.5387487278240067,
+          "final_norm": 0.594772265625
+        },
+        {
+          "gen": 3,
+          "beats": 350,
+          "cause": "max_steps",
+          "survived": true,
+          "mean_k": 0.4500395749296461,
+          "std_k": 0.0017104120265158845,
+          "min_k": 0.44641751050949097,
+          "max_k": 0.4519633650779724,
+          "mean_light": 0.53340018717306,
+          "final_norm": 0.77183310546875
+        },
+        {
+          "gen": 4,
+          "beats": 350,
+          "cause": "max_steps",
+          "survived": true,
+          "mean_k": 0.3831140043480056,
+          "std_k": 0.14289351650145776,
+          "min_k": 0.05886511504650116,
+          "max_k": 0.45286548137664795,
+          "mean_light": 0.45425487484583366,
+          "final_norm": 0.2181304931640625
+        },
+        {
+          "gen": 5,
+          "beats": 253,
+          "cause": "low",
+          "survived": false,
+          "mean_k": 0.057399190108295486,
+          "std_k": 0.0005990539245886358,
+          "min_k": 0.056500863283872604,
+          "max_k": 0.059213049709796906,
+          "mean_light": 0.5510813757306031,
+          "final_norm": 0.19903046875
+        },
+        {
+          "gen": 6,
+          "beats": 282,
+          "cause": "low",
+          "survived": false,
+          "mean_k": 0.21407150109926015,
+          "std_k": 0.17837860366566288,
+          "min_k": 0.05879417806863785,
+          "max_k": 0.45575737953186035,
+          "mean_light": 0.4608952892640381,
+          "final_norm": 0.1957183349609375
+        },
+        {
+          "gen": 7,
+          "beats": 350,
+          "cause": "max_steps",
+          "survived": true,
+          "mean_k": 0.4577522950513022,
+          "std_k": 0.0006311187873656751,
+          "min_k": 0.456035315990448,
+          "max_k": 0.45838162302970886,
+          "mean_light": 0.5061559485138527,
+          "final_norm": 0.665435498046875
+        },
+        {
+          "gen": 8,
+          "beats": 294,
+          "cause": "low",
+          "survived": false,
+          "mean_k": 0.45826080907769756,
+          "std_k": 0.00017438411933543956,
+          "min_k": 0.45789164304733276,
+          "max_k": 0.45856577157974243,
+          "mean_light": 0.40298348505582127,
+          "final_norm": 0.1996493896484375
+        },
+        {
+          "gen": 9,
+          "beats": 297,
+          "cause": "low",
+          "survived": false,
+          "mean_k": 0.4580686163621318,
+          "std_k": 0.00015581186671333357,
+          "min_k": 0.45777690410614014,
+          "max_k": 0.4583788216114044,
+          "mean_light": 0.4109910245073853,
+          "final_norm": 0.1973158935546875
+        },
+        {
+          "gen": 10,
+          "beats": 350,
+          "cause": "max_steps",
+          "survived": true,
+          "mean_k": 0.4572328414235796,
+          "std_k": 0.00042737052204046196,
+          "min_k": 0.45639434456825256,
+          "max_k": 0.45786696672439575,
+          "mean_light": 0.4913183167104476,
+          "final_norm": 0.65257822265625
+        },
+        {
+          "gen": 11,
+          "beats": 295,
+          "cause": "low",
+          "survived": false,
+          "mean_k": 0.45604750413005635,
+          "std_k": 0.0005796796543400375,
+          "min_k": 0.4545852243900299,
+          "max_k": 0.4569038450717926,
+          "mean_light": 0.4027649374805012,
+          "final_norm": 0.19836109619140624
+        },
+        {
+          "gen": 12,
+          "beats": 350,
+          "cause": "max_steps",
+          "survived": true,
+          "mean_k": 0.3398728875177247,
+          "std_k": 0.16942177962437752,
+          "min_k": 0.05520942062139511,
+          "max_k": 0.4546821117401123,
+          "mean_light": 0.4685849293886817,
+          "final_norm": 0.27174208984375
+        }
+      ],
+      "dir": "data\\V11\\exp12b\\B_FIXED_BOUND_seed0"
+    }
+  }
+}
