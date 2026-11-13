@@ -176,7 +176,7 @@ def main() -> int:
     t0 = time.time()
     action, info = brain2.heartbeat(obs, sample=True)
     dt = time.time() - t0
-    check("动作形状正确", action.shape == (3,), str(action.shape))
+    check("动作形状正确", action.shape == (2,), str(action.shape))
     check("动作是速度矢量（世界单位/秒）", bool(np.all(np.abs(action) <= 150.0 + 1e-6)),
           f"max={float(np.abs(action).max()):.1f}")
     check("归一化速度 v_norm ∈ [0,1]", 0.0 <= info["v_norm"] <= 1.0 + 1e-9,
@@ -235,10 +235,10 @@ def main() -> int:
     check("带子正中速度缩放接近 1", abs(s_center - 1.0) < 0.02, f"{s_center:.4f}")
 
     # 力 → 速度
-    vel, vn = ph.force_to_velocity([1.0, 0.0, 0.0], e0 * 1.6, m, e0)
+    vel, vn = ph.force_to_velocity([1.0, 0.0], e0 * 1.6, m, e0)
     check("力→速度：方向不变", abs(vel[0] - vn * 150.0) < 1e-6, f"vx={vel[0]:.1f}")
     check("力→速度：v_norm ≤ 1", vn <= 1.0 + 1e-12, f"v_norm={vn:.4f}")
-    vel0, vn0 = ph.force_to_velocity([0.0, 0.0, 0.0], e0 * 1.6, m, e0)
+    vel0, vn0 = ph.force_to_velocity([0.0, 0.0], e0 * 1.6, m, e0)
     check("零力 → 零速度", vn0 == 0.0 and float(np.abs(vel0).max()) == 0.0, "0")
 
     # 运动耗能
@@ -371,7 +371,7 @@ def main() -> int:
         c.n_layers_meta = lm
         c.meta_pool = pool
         return EntityInterface(c, grid=Config().field.grid,
-                               init_log_std=-1.0, world_obs_dim=8)
+                               init_log_std=-1.0, world_obs_dim=Config().interface.obs_dim)
 
     iA = build(False, 2, 0, 1)
     iB = build(True, 1, 1, 1)
@@ -393,10 +393,10 @@ def main() -> int:
     # 前向形状 + 两种分辨率
     psi = torch.randn(Config().field.grid, Config().field.grid,
                       dtype=torch.complex64) * 0.1
-    wob = torch.zeros(1, 8)
+    wob = torch.zeros(1, Config().interface.obs_dim)
     for name, iface in (("A", iA), ("B", iB), ("C", iC), ("D", iD)):
         m, v, s, z, sz = iface.act_all(psi, wob)
-        ok = (m.shape == (1, 3) and v.shape == (1, 1) and s.shape == (1, 3)
+        ok = (m.shape == (1, 2) and v.shape == (1, 1) and s.shape == (1, 2)
               and z is not None and z.shape == (1, 1) and sz.shape == (1, 1))
         extra = ""
         if name == "C":
@@ -421,7 +421,7 @@ def main() -> int:
     cb.interface.n_layers_meta = 1
     cb.interface.meta_pool = 4
     brain_b = Brain(cb, seed=0)
-    obs_b = np.zeros(8, dtype=np.float32)
+    obs_b = np.zeros(Config().interface.obs_dim, dtype=np.float32)
     obs_b[2] = 0.4
     decisions = []
     for t in range(20):
@@ -441,7 +441,7 @@ def main() -> int:
     for kk in (0.2, 1.0, 1.8):
         bk = Brain(cb2, seed=0)
         bk._k_breath = float(kk)
-        ob = np.zeros(8, dtype=np.float32)
+        ob = np.zeros(Config().interface.obs_dim, dtype=np.float32)
         ob[2] = 0.45
         _, i2 = bk.heartbeat(ob, sample=False)
         gains.append(i2["meta_gain"])
@@ -463,7 +463,7 @@ def main() -> int:
         c.cnn_breath_channels = breath_ch
         c.split_pass2 = split
         return CNNInterface(c, grid=Config().field.grid,
-                            init_log_std=-1.0, world_obs_dim=8)
+                            init_log_std=-1.0, world_obs_dim=Config().interface.obs_dim)
 
     n1 = build_cnn((16, 32, 64), 1)
     n2 = build_cnn((64, 128, 256), 2)
@@ -482,7 +482,7 @@ def main() -> int:
                         dtype=torch.complex64) * 0.1
     for nm, iface in (("N1", n1), ("N2", n2), ("N3", n3)):
         m, v, s, z, sz = iface.act_all(psi12, wob)
-        ok = (m.shape == (1, 3) and v.shape == (1, 1) and s.shape == (1, 3)
+        ok = (m.shape == (1, 2) and v.shape == (1, 1) and s.shape == (1, 2)
               and z is not None and z.shape == (1, 1))
         check(f"CNN {nm} 前向输出形状正确", ok, f"mean{tuple(m.shape)} z{tuple(z.shape)}")
 
@@ -536,7 +536,7 @@ def main() -> int:
     cb3.interface.cnn_channels = (16, 32, 64)
     cb3.interface.cnn_blocks = 1
     brain_c = Brain(cb3, seed=0)
-    ob_c = np.zeros(8, dtype=np.float32)
+    ob_c = np.zeros(Config().interface.obs_dim, dtype=np.float32)
     ob_c[2] = 0.5
     ok_run = True
     detail_c = ""
@@ -643,7 +643,7 @@ def main() -> int:
         c.interface.cnn_channels = (16, 32, 64)
         c.interface.cnn_blocks = 1
         bb = Brain(c, seed=0)
-        ob = np.zeros(8, dtype=np.float32)
+        ob = np.zeros(Config().interface.obs_dim, dtype=np.float32)
         ob[2] = 0.55
         got = []
         for _ in range(steps):
@@ -685,7 +685,7 @@ def main() -> int:
     # 走一步世界，光心应该真的移动了
     w_mov.reset()
     _x_before = w_mov.light_center()
-    w_mov.step(np.zeros(3))
+    w_mov.step(np.zeros(2))
     check("走一拍之后光心位置改变（世界真的有随时间变化的资源）",
           abs(w_mov.light_center() - _x_before) > 1e-6,
           f"{_x_before:.2f} → {w_mov.light_center():.2f}")
@@ -731,7 +731,7 @@ def main() -> int:
     b5 = Brain(cb5, seed=0)
     gA = b5.get_genome()
     psi5 = b5.field.obs_tensor()
-    world5 = torch.zeros(1, 8, dtype=torch.float32, device=b5.device)
+    world5 = torch.zeros(1, cb5.interface.obs_dim, dtype=torch.float32, device=b5.device)
     with torch.no_grad():
         m1, v1, s1 = b5.interface.act(psi5, world5)
     b5.set_genome(mutate(gA, 0.2, seed=9))      # 换成别的基因
@@ -898,7 +898,7 @@ def main() -> int:
         c.interface.cnn_channels = (16, 32, 64)
         c.interface.cnn_blocks = 1
         bb = Brain(c, seed=0)
-        ob = np.zeros(8, dtype=np.float32)
+        ob = np.zeros(Config().interface.obs_dim, dtype=np.float32)
         ob[2] = light
         got = []
         for _ in range(steps):

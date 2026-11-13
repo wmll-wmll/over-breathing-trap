@@ -99,7 +99,7 @@ class EntityInterface(nn.Module):
     """
 
     def __init__(self, cfg: InterfaceConfig, grid: int,
-                 init_log_std: float = -1.0, world_obs_dim: int = 8):
+                 init_log_std: float = -1.0, world_obs_dim: int = 7):
         super().__init__()
         self.cfg = cfg
         self.grid = int(grid)

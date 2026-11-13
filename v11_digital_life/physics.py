@@ -589,21 +589,21 @@ def force_to_velocity(force, energy: float, mass: float, energy_cap: float):
 
     参数
     ----------
-    force : 长度为 3 的序列（或 numpy 数组）
-        力 / 意愿矢量，被 tanh 压在 [−1,1]³。
+    force : 长度为 2 的序列（或 numpy 数组）
+        力 / 意愿矢量（x, z），被 tanh 压在 [−1,1]²。
 
     返回
     -------
     (velocity_world, v_norm)
-        velocity_world : (3,) 世界单位/秒
+        velocity_world : (2,) 世界单位/秒
         v_norm         : 归一化速度 ∈ [0,1]
     """
     import numpy as np
 
-    f = np.asarray(force, dtype=np.float64).reshape(3)
+    f = np.asarray(force, dtype=np.float64).reshape(2)
     mag = float(np.linalg.norm(f))
     if mag < 1e-9:
-        return np.zeros(3, dtype=np.float64), 0.0
+        return np.zeros(2, dtype=np.float64), 0.0
 
     scale = speed_scale(energy, mass, energy_cap)
     v_norm = min(1.0, mag * scale)          # 意愿 × 两个系数，再裁到 ≤1

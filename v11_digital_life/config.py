@@ -146,7 +146,7 @@ class InterfaceConfig:
     """**已废弃**：现在逐格 token（128×128 = 16,384 个），不再切 patch。
     保留这个字段只是为了让旧的分析脚本不至于直接报错。"""
 
-    obs_dim: int = 8
+    obs_dim: int = 7
     """世界观测矢量的维度 —— 它是唯一的额外 token。
 
     ★ 2026-10-18 修订：不再有「身体内感受」那一半。
@@ -159,7 +159,7 @@ class InterfaceConfig:
       世界必须有个入口。如果输入**只有**场本身，那场就完全封闭，
       agent 在世界里怎么移动都不会影响任何东西 —— 闭环断掉。"""
 
-    action_dim: int = 3
+    action_dim: int = 2
     """动作维度：三维速度。"""
 
     write_gain_max: float = 0.5

@@ -67,7 +67,7 @@ class SandboxWorld:
 
         self.pos = np.zeros(2, dtype=np.float64)
         self.prev_light = 0.0
-        self.prev_action = np.zeros(3, dtype=np.float64)
+        self.prev_action = np.zeros(2, dtype=np.float64)
         self.t = 0
 
     # ── 世界自身的物理 ──────────────────────────────────────────────
@@ -93,7 +93,7 @@ class SandboxWorld:
         self.pos = np.array([self.spawn_min + self.spawn_span * self.rng.random(), 0.0])
         self.t = 0
         self.prev_light = self._light_at(self.pos[0])
-        self.prev_action = np.zeros(3)
+        self.prev_action = np.zeros(2)
         return self._obs()
 
     def _obs(self) -> np.ndarray:
@@ -103,7 +103,7 @@ class SandboxWorld:
         [1] 位置 z（归一化，这里恒 0）
         [2] 当前光强
         [3] 光强的变化率（★「这里能量在增还是减」）
-        [4..6] 上一拍的动作
+        [4..5] 上一拍的动作
         [7] 时间进度
         """
         light = self._light_at(self.pos[0])
@@ -116,7 +116,6 @@ class SandboxWorld:
                 slope * 10.0,
                 self.prev_action[0],
                 self.prev_action[1],
-                self.prev_action[2],
                 min(1.0, self.t / max(1, self.cfg.life.max_steps)),
             ],
             dtype=np.float32,
@@ -138,7 +137,7 @@ class SandboxWorld:
             Δ位置 = 速度(世界单位/秒) × dt(秒)
 
         """
-        a = np.asarray(action, dtype=np.float64).reshape(3)
+        a = np.asarray(action, dtype=np.float64).reshape(2)
         # 只裁速度上限，不裁成归一化量
         speed_mag = float(np.linalg.norm(a))
         if speed_mag > 150.0:
@@ -149,13 +148,13 @@ class SandboxWorld:
 
         self.t += 1                       # ★ 先走时间：光源也跟着走
         new_light = self._light_at(self.pos[0])
-        self.prev_light = new_light
-        self.prev_action = a
-
+        self.prev_action = a          # 观测要看到刚做的动作
+        obs = self._obs()             # 此时 prev_light 仍是**上一拍**的值
+        self.prev_light = new_light   # ★ 必须放在 _obs() 之后，否则 slope 恒为 0
         done = self.t >= self.cfg.life.max_steps
         info = {"alive": True, "light": new_light, "x": self.pos[0],
                 "light_center": self.light_center()}
-        return self._obs(), done, info
+        return obs, done, info
 
 
 def main() -> int:

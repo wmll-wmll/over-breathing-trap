@@ -87,7 +87,7 @@ class CNNInterface(nn.Module):
     """卷积主干 + 全局池化 + 两个头。契约与 EntityInterface 相同。"""
 
     def __init__(self, cfg: InterfaceConfig, grid: int,
-                 init_log_std: float = -1.0, world_obs_dim: int = 8):
+                 init_log_std: float = -1.0, world_obs_dim: int = 7):
         super().__init__()
         self.cfg = cfg
         self.grid = int(grid)
@@ -256,7 +256,7 @@ class MLPInterface(nn.Module):
     """
 
     def __init__(self, cfg: InterfaceConfig, grid: int,
-                 init_log_std: float = -1.0, world_obs_dim: int = 8):
+                 init_log_std: float = -1.0, world_obs_dim: int = 7):
         super().__init__()
         self.cfg = cfg
         self.grid = int(grid)

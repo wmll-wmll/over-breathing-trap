@@ -230,7 +230,10 @@ class Brain:
                 z_s = z_breath + std_breath * torch.randn_like(z_breath)
             else:
                 z_s = z_breath
-            breath_logp = gaussian_logprob(z_breath, std_breath, z_s)
+            # ★ 策略梯度的采样动作必须当常数：z_s = z_breath + std·ε 是
+            #   z_breath 的函数，不 detach 时 ∂logp/∂z_breath ≡ 0（重参数化
+            #   把 score-function 项抵消掉了），呼吸均值就永远不更新。
+            breath_logp = gaussian_logprob(z_breath, std_breath, z_s.detach())
             breath_ent = gaussian_entropy(std_breath)
             # ★ 实验 12：动作映射。
             #   旧行为（breath_limit_useful=False）：z → [0.05, 2.00] 全开。
@@ -255,7 +258,9 @@ class Brain:
             raw = mean + std * eps
         else:
             raw = mean
-        logp = gaussian_logprob(mean, std, raw)
+        # ★ 同理：raw 是 mean + std·ε 的函数，必须 detach 后再算 logp，
+        #   否则 ∂logp/∂mean ≡ 0，力头的均值永远不更新。
+        logp = gaussian_logprob(mean, std, raw.detach())
         ent = gaussian_entropy(std)
         force = raw.clamp(-1.0, 1.0)
 
