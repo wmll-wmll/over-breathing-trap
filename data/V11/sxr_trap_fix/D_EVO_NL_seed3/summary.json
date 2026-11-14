@@ -1,0 +1,570 @@
+{
+  "arm": "EVO_NL",
+  "desc": "纯进化（选择 + 变异，一生不学习）",
+  "world": "D",
+  "world_desc": "★★★ 实验 N1：窗口内部（σ=200，light_gain=0.55）—— 活满率 33%",
+  "seed": 3,
+  "population": 8,
+  "generations": 15,
+  "lives": 120,
+  "selection": "fitness",
+  "inheritance": "darwinian",
+  "mutation_rate": 0.05,
+  "train": false,
+  "max_steps": 350,
+  "params": 35402,
+  "fitness_first": 32.75,
+  "fitness_last": 34.0,
+  "fitness_first3": 34.666666666666664,
+  "fitness_last3": 33.416666666666664,
+  "beats_best_last": 52.0,
+  "n_survived_last": 0,
+  "diversity_first": 0.9592015097887001,
+  "diversity_last": 0.0967459260587946,
+  "mean_k_last": 1.368510318882601,
+  "track_err_last": 147.2101557822659,
+  "held_innate_mean": 37.6,
+  "held_innate_worst": 27.0,
+  "held_innate_beats": [
+    34,
+    36,
+    52,
+    27,
+    41,
+    40,
+    29,
+    29,
+    47,
+    41
+  ],
+  "held_learned_mean": 131.7,
+  "held_learned_worst": 44.0,
+  "held_learned_beats": [
+    128,
+    132,
+    242,
+    44,
+    141,
+    143,
+    50,
+    51,
+    241,
+    145
+  ],
+  "held_pool_mean": 39.0,
+  "wall_seconds": 37.9805371761322,
+  "sec_per_life": 0.31650447646776836,
+  "history": [
+    {
+      "gen": 1,
+      "selection": "fitness",
+      "inheritance": "darwinian",
+      "fitness": [
+        35.0,
+        30.0,
+        26.0,
+        36.0,
+        32.0,
+        34.0,
+        30.0,
+        39.0
+      ],
+      "best": 39.0,
+      "mean": 32.75,
+      "worst": 26.0,
+      "std": 3.832427429188973,
+      "n_survived": 0,
+      "parents": [
+        7,
+        3
+      ],
+      "parent_fitness": [
+        39.0,
+        36.0
+      ],
+      "diversity": 0.9592015097887001,
+      "offspring_distance": 0.8460023850779042,
+      "mean_k": 1.480515491184799,
+      "mean_track_err": 119.56572809054703,
+      "mean_light": 0.3799876048301425,
+      "mean_action": 5.390007653858484
+    },
+    {
+      "gen": 2,
+      "selection": "fitness",
+      "inheritance": "darwinian",
+      "fitness": [
+        38.0,
+        39.0,
+        34.0,
+        37.0,
+        35.0,
+        38.0,
+        36.0,
+        36.0
+      ],
+      "best": 39.0,
+      "mean": 36.625,
+      "worst": 34.0,
+      "std": 1.5761900266148114,
+      "n_survived": 0,
+      "parents": [
+        1,
+        0
+      ],
+      "parent_fitness": [
+        39.0,
+        38.0
+      ],
+      "diversity": 0.5440613961124382,
+      "offspring_distance": 0.4058326662802744,
+      "mean_k": 1.4855642930011204,
+      "mean_track_err": 94.84140398553458,
+      "mean_light": 0.426556037742425,
+      "mean_action": 5.835288678907575
+    },
+    {
+      "gen": 3,
+      "selection": "fitness",
+      "inheritance": "darwinian",
+      "fitness": [
+        35.0,
+        34.0,
+        35.0,
+        34.0,
+        36.0,
+        36.0,
+        35.0,
+        32.0
+      ],
+      "best": 36.0,
+      "mean": 34.625,
+      "worst": 32.0,
+      "std": 1.2183492931011204,
+      "n_survived": 0,
+      "parents": [
+        4,
+        5
+      ],
+      "parent_fitness": [
+        36.0,
+        36.0
+      ],
+      "diversity": 0.07174695494585957,
+      "offspring_distance": 0.09270233240759872,
+      "mean_k": 1.4723992280255094,
+      "mean_track_err": 107.84537462006172,
+      "mean_light": 0.3994774070546317,
+      "mean_action": 5.82237721755975
+    },
+    {
+      "gen": 4,
+      "selection": "fitness",
+      "inheritance": "darwinian",
+      "fitness": [
+        37.0,
+        35.0,
+        35.0,
+        34.0,
+        37.0,
+        34.0,
+        36.0,
+        34.0
+      ],
+      "best": 37.0,
+      "mean": 35.25,
+      "worst": 34.0,
+      "std": 1.1989578808281798,
+      "n_survived": 0,
+      "parents": [
+        0,
+        4
+      ],
+      "parent_fitness": [
+        37.0,
+        37.0
+      ],
+      "diversity": 0.08824833456074113,
+      "offspring_distance": 0.06335975537579577,
+      "mean_k": 1.4549848779922785,
+      "mean_track_err": 109.33418956771939,
+      "mean_light": 0.39593746835396393,
+      "mean_action": 5.769422156791858
+    },
+    {
+      "gen": 5,
+      "selection": "fitness",
+      "inheritance": "darwinian",
+      "fitness": [
+        24.0,
+        24.0,
+        27.0,
+        25.0,
+        27.0,
+        23.0,
+        24.0,
+        24.0
+      ],
+      "best": 27.0,
+      "mean": 24.75,
+      "worst": 23.0,
+      "std": 1.3919410907075054,
+      "n_survived": 0,
+      "parents": [
+        2,
+        4
+      ],
+      "parent_fitness": [
+        27.0,
+        27.0
+      ],
+      "diversity": 0.09342323367560097,
+      "offspring_distance": 0.10474179822076637,
+      "mean_k": 1.4336136974730258,
+      "mean_track_err": 207.47669041001984,
+      "mean_light": 0.2220377097277671,
+      "mean_action": 5.072558982924784
+    },
+    {
+      "gen": 6,
+      "selection": "fitness",
+      "inheritance": "darwinian",
+      "fitness": [
+        31.0,
+        33.0,
+        35.0,
+        34.0,
+        34.0,
+        30.0,
+        38.0,
+        34.0
+      ],
+      "best": 38.0,
+      "mean": 33.625,
+      "worst": 30.0,
+      "std": 2.2878756522153907,
+      "n_survived": 0,
+      "parents": [
+        6,
+        2
+      ],
+      "parent_fitness": [
+        38.0,
+        35.0
+      ],
+      "diversity": 0.08233591850375978,
+      "offspring_distance": 0.09414038103227501,
+      "mean_k": 1.4199708130998436,
+      "mean_track_err": 131.67105921413173,
+      "mean_light": 0.3574062918723028,
+      "mean_action": 6.028160301930995
+    },
+    {
+      "gen": 7,
+      "selection": "fitness",
+      "inheritance": "darwinian",
+      "fitness": [
+        34.0,
+        30.0,
+        34.0,
+        33.0,
+        30.0,
+        32.0,
+        34.0,
+        33.0
+      ],
+      "best": 34.0,
+      "mean": 32.5,
+      "worst": 30.0,
+      "std": 1.5811388300841898,
+      "n_survived": 0,
+      "parents": [
+        0,
+        2
+      ],
+      "parent_fitness": [
+        34.0,
+        34.0
+      ],
+      "diversity": 0.08291343398800152,
+      "offspring_distance": 0.0629669014074778,
+      "mean_k": 1.4109431430415222,
+      "mean_track_err": 142.48521047208934,
+      "mean_light": 0.33921390294922027,
+      "mean_action": 6.641552300064222
+    },
+    {
+      "gen": 8,
+      "selection": "fitness",
+      "inheritance": "darwinian",
+      "fitness": [
+        34.0,
+        35.0,
+        35.0,
+        36.0,
+        42.0,
+        35.0,
+        34.0,
+        43.0
+      ],
+      "best": 43.0,
+      "mean": 36.75,
+      "worst": 34.0,
+      "std": 3.3819373146171707,
+      "n_survived": 0,
+      "parents": [
+        7,
+        4
+      ],
+      "parent_fitness": [
+        43.0,
+        42.0
+      ],
+      "diversity": 0.08835091386291259,
+      "offspring_distance": 0.07259217330177746,
+      "mean_k": 1.40766210035449,
+      "mean_track_err": 115.96420799671701,
+      "mean_light": 0.3814814819220671,
+      "mean_action": 6.338286203339966
+    },
+    {
+      "gen": 9,
+      "selection": "fitness",
+      "inheritance": "darwinian",
+      "fitness": [
+        51.0,
+        42.0,
+        43.0,
+        44.0,
+        46.0,
+        40.0,
+        45.0,
+        43.0
+      ],
+      "best": 51.0,
+      "mean": 44.25,
+      "worst": 40.0,
+      "std": 3.072051431861127,
+      "n_survived": 0,
+      "parents": [
+        0,
+        4
+      ],
+      "parent_fitness": [
+        51.0,
+        46.0
+      ],
+      "diversity": 0.09899476921933913,
+      "offspring_distance": 0.06257448284561982,
+      "mean_k": 1.366327422560207,
+      "mean_track_err": 99.55841111352223,
+      "mean_light": 0.41587825412127505,
+      "mean_action": 5.3011577911710575
+    },
+    {
+      "gen": 10,
+      "selection": "fitness",
+      "inheritance": "darwinian",
+      "fitness": [
+        49.0,
+        48.0,
+        40.0,
+        43.0,
+        46.0,
+        52.0,
+        43.0,
+        51.0
+      ],
+      "best": 52.0,
+      "mean": 46.5,
+      "worst": 40.0,
+      "std": 3.968626966596886,
+      "n_survived": 0,
+      "parents": [
+        5,
+        7
+      ],
+      "parent_fitness": [
+        52.0,
+        51.0
+      ],
+      "diversity": 0.10386435558296925,
+      "offspring_distance": 0.09936687923173873,
+      "mean_k": 1.356489214894342,
+      "mean_track_err": 96.18879411326768,
+      "mean_light": 0.42311316132816673,
+      "mean_action": 5.719027143964828
+    },
+    {
+      "gen": 11,
+      "selection": "fitness",
+      "inheritance": "darwinian",
+      "fitness": [
+        44.0,
+        45.0,
+        42.0,
+        42.0,
+        41.0,
+        43.0,
+        41.0,
+        41.0
+      ],
+      "best": 45.0,
+      "mean": 42.375,
+      "worst": 41.0,
+      "std": 1.4086784586980805,
+      "n_survived": 0,
+      "parents": [
+        1,
+        0
+      ],
+      "parent_fitness": [
+        45.0,
+        44.0
+      ],
+      "diversity": 0.08236004454925576,
+      "offspring_distance": 0.08147420676609393,
+      "mean_k": 1.3654370776293723,
+      "mean_track_err": 104.35620155871959,
+      "mean_light": 0.4036274837610783,
+      "mean_action": 6.337013821611989
+    },
+    {
+      "gen": 12,
+      "selection": "fitness",
+      "inheritance": "darwinian",
+      "fitness": [
+        45.0,
+        52.0,
+        43.0,
+        42.0,
+        41.0,
+        44.0,
+        45.0,
+        41.0
+      ],
+      "best": 52.0,
+      "mean": 44.125,
+      "worst": 41.0,
+      "std": 3.3330729064933458,
+      "n_survived": 0,
+      "parents": [
+        1,
+        0
+      ],
+      "parent_fitness": [
+        52.0,
+        45.0
+      ],
+      "diversity": 0.07386360251206044,
+      "offspring_distance": 0.07757760440702631,
+      "mean_k": 1.3428165383776296,
+      "mean_track_err": 105.4190430543618,
+      "mean_light": 0.4005742104114065,
+      "mean_action": 5.916326355427362
+    },
+    {
+      "gen": 13,
+      "selection": "fitness",
+      "inheritance": "darwinian",
+      "fitness": [
+        30.0,
+        28.0,
+        30.0,
+        27.0,
+        31.0,
+        26.0,
+        28.0,
+        26.0
+      ],
+      "best": 31.0,
+      "mean": 28.25,
+      "worst": 26.0,
+      "std": 1.7853571071357126,
+      "n_survived": 0,
+      "parents": [
+        4,
+        0
+      ],
+      "parent_fitness": [
+        31.0,
+        30.0
+      ],
+      "diversity": 0.074253565080826,
+      "offspring_distance": 0.09388649513806345,
+      "mean_k": 1.3361471973108483,
+      "mean_track_err": 209.14862834378812,
+      "mean_light": 0.2188781639311802,
+      "mean_action": 4.980489816839928
+    },
+    {
+      "gen": 14,
+      "selection": "fitness",
+      "inheritance": "darwinian",
+      "fitness": [
+        36.0,
+        38.0,
+        37.0,
+        39.0,
+        40.0,
+        38.0,
+        37.0,
+        39.0
+      ],
+      "best": 40.0,
+      "mean": 38.0,
+      "worst": 36.0,
+      "std": 1.224744871391589,
+      "n_survived": 0,
+      "parents": [
+        4,
+        3
+      ],
+      "parent_fitness": [
+        40.0,
+        39.0
+      ],
+      "diversity": 0.08382902779567238,
+      "offspring_distance": 0.11234877396985948,
+      "mean_k": 1.3320478785276375,
+      "mean_track_err": 134.5853115886795,
+      "mean_light": 0.3489334722299505,
+      "mean_action": 6.167621608802466
+    },
+    {
+      "gen": 15,
+      "selection": "fitness",
+      "inheritance": "darwinian",
+      "fitness": [
+        32.0,
+        33.0,
+        36.0,
+        32.0,
+        37.0,
+        32.0,
+        38.0,
+        32.0
+      ],
+      "best": 38.0,
+      "mean": 34.0,
+      "worst": 32.0,
+      "std": 2.3979157616563596,
+      "n_survived": 0,
+      "parents": [
+        6,
+        4
+      ],
+      "parent_fitness": [
+        38.0,
+        37.0
+      ],
+      "diversity": 0.0967459260587946,
+      "offspring_distance": 0.1117913637779287,
+      "mean_k": 1.368510318882601,
+      "mean_track_err": 147.2101557822659,
+      "mean_light": 0.32950447593866095,
+      "mean_action": 5.843647611781863
+    }
+  ],
+  "dir": "data\\V11\\sxr_trap_fix\\D_EVO_NL_seed3"
+}

@@ -193,7 +193,7 @@ def section_a() -> None:
 
 def section_b() -> None:
     print("\n[B] 实验 13：世界 B 的饱和")
-    for d in sorted((ROOT / "data/V11/exp13").glob("B_EVO_NL_seed*")):
+    for d in sorted((ROOT / "data/V11/exp13_fix").glob("B_EVO_NL_seed*")):
         p = d / "generations.csv"
         if not p.exists():
             continue
@@ -223,13 +223,13 @@ def section_b() -> None:
 
 def section_c() -> None:
     print("\n[C] 实验 14：世界 C（5 seeds）")
-    R = load_results(str(ROOT / "data/V11/exp13_fixed/exp11_*.json"))
+    R = load_results(str(ROOT / "data/V11/exp13_fixed_fix/exp11_*.json"))
     arms = ["EVO_NL", "NONE_NL", "EVO", "LAM"]
 
     # C1 生存：从 individuals.csv 数活满
     tot = surv = 0
     causes: dict[str, int] = {}
-    for d in sorted((ROOT / "data/V11/exp13_fixed").glob("C_*_seed*")):
+    for d in sorted((ROOT / "data/V11/exp13_fixed_fix").glob("C_*_seed*")):
         p = d / "individuals.csv"
         if not p.exists():
             continue
@@ -239,6 +239,17 @@ def section_c() -> None:
             causes[r["cause"]] = causes.get(r["cause"], 0) + 1
     print(f"   生存：{surv}/{tot} 活满  死因={causes}")
     check("C1 世界 C 存活率", "0/2400", f"{surv}/{tot}", tot == 2400 and surv == 0)
+
+    # C2 末代分布：最优臂 EVO_NL 的 5 个 seed-run 各取末代 40 条命
+    hi = lo = 0
+    for d in sorted((ROOT / "data/V11/exp13_fixed_fix").glob("C_EVO_NL_seed*")):
+        rows = list(csv.DictReader(open(d / "individuals.csv", encoding="utf-8")))[-40:]
+        b = [float(r["beats"]) for r in rows]
+        hi += sum(325 <= x <= 349 for x in b)
+        lo += sum(225 <= x <= 300 for x in b)
+    check("C2 末代双峰（EVO_NL 5 run）", "149 / 51", f"{hi} / {lo}",
+          hi == 149 and lo == 51 and hi + lo == 200,
+          "325–349 / 225–300，两者之间 0 条")
 
     # C2 双峰
     print(f"   {'臂':<9} {'≥340':>6} {'200-250':>8} {'均值':>7}")
@@ -259,8 +270,8 @@ def section_c() -> None:
         ps = exact_sign_flip(d)
         print(f"   {a+' vs '+b:<20} {d.mean():>+7.1f} {t:>7.2f} {p:>7.3f} {ps:>7.3f}")
         if (a, b) == ("EVO", "LAM"):
-            check("C3 EVO vs LAM 配对 t 双侧 p", "0.016", f"{p:.3f}",
-                  abs(p - 0.0161) < 0.006,
+            check("C3 EVO vs LAM 配对 t 双侧 p", "0.017", f"{p:.3f}",
+                  abs(p - 0.0166) < 0.006,
                   "初稿曾误报 0.032（非配对置换）")
             check("C4 EVO vs LAM 符号翻转 p", "0.062", f"{ps:.3f}",
                   abs(ps - 0.062) < 0.01,
@@ -289,7 +300,7 @@ def section_c() -> None:
 
 def section_d() -> None:
     print("\n[D] 世界轮换统计口径")
-    R = load_results(str(ROOT / "data/V11/exp13_fixed/exp11_*.json"))
+    R = load_results(str(ROOT / "data/V11/exp13_fixed_fix/exp11_*.json"))
     worlds = set()
     for k in R:
         for h in R[k]["history"]:
@@ -383,7 +394,7 @@ def section_e() -> None:
 
     # E8：§6.1 的「修复前基线」来自 exp11（另一批数据），单独核
     M11: dict = {}
-    for f in sorted(glob.glob(str(ROOT / "data/V11/exp11/exp11_*.json"))):
+    for f in sorted(glob.glob(str(ROOT / "data/V11/exp11_fix/exp11_*.json"))):
         M11.update(json.load(open(f, encoding="utf-8"))["results"])
     ks11 = sorted(k for k in M11 if k.startswith("B:EVO_NL:"))
     if ks11:
@@ -573,7 +584,7 @@ def section_i() -> None:
     所以这两个数可以直接对照。
     """
     print("\n[I] 世界 D 的三臂对照（§7）")
-    base = ROOT / "data/V11/n1_window"
+    base = ROOT / "data/V11/n1_window_fix"
     if not base.exists():
         print("   数据不存在，跳过")
         check("I0 世界 D 数据存在", "存在", "缺失", False)
@@ -600,13 +611,13 @@ def section_i() -> None:
     div_no = np.mean([R[("NONE_NL", s)]["diversity_last"] for s in seeds])
     print(f"   末代多样性：有选择 {div_ev:.3f}  无选择 {div_no:.3f}")
 
-    check("I1 基因池差", "+26.3", f"{d.mean():+.1f}", abs(d.mean() - 26.3) < 0.5)
+    check("I1 基因池差", "+26.2", f"{d.mean():+.1f}", abs(d.mean() - 26.2) < 0.5)
     check("I2 同向种子数", "5/5", f"{int((d > 0).sum())}/{len(d)}",
           int((d > 0).sum()) == len(d) == 5)
     check("I3 配对 t", "2.56", f"{t:.2f}", abs(t - 2.56) < 0.05)
     check("I4 符号翻转 p", "0.0625", f"{ps:.4f}", abs(ps - 0.0625) < 1e-6,
           "n=5 的下限——符号检验到不了 p<0.05，必须同时报配对 t")
-    check("I5 多样性坍缩", "0.083 vs 0.978",
+    check("I5 多样性坍缩", "0.081 vs 0.979",
           f"{div_ev:.3f} vs {div_no:.3f}", div_ev < 0.2 and div_no > 0.9)
 
 
@@ -701,13 +712,13 @@ def section_k() -> None:
     print()
     print("[K] 选择 vs 精英（§7 三臂对照）")
     by: dict = {}
-    for f in glob.glob(str(ROOT / "data/V11/review_fix_elitism/*/summary.json")):
+    for f in glob.glob(str(ROOT / "data/V11/review_fix_elitism_fix/*/summary.json")):
         d = json.load(open(f, encoding="utf-8"))
         by.setdefault((d["world"], d["arm"]), {})[d["seed"]] = d["held_pool_mean"]
-    for f in glob.glob(str(ROOT / "data/V11/n1_window/*/summary.json")):
+    for f in glob.glob(str(ROOT / "data/V11/n1_window_fix/*/summary.json")):
         d = json.load(open(f, encoding="utf-8"))
         by.setdefault(("D", d["arm"]), {})[d["seed"]] = d["held_pool_mean"]
-    for f in glob.glob(str(ROOT / "data/V11/exp13_fixed/C_*/summary.json")):
+    for f in glob.glob(str(ROOT / "data/V11/exp13_fixed_fix/C_*/summary.json")):
         d = json.load(open(f, encoding="utf-8"))
         by.setdefault(("C", d["arm"]), {})[d["seed"]] = d["held_pool_mean"]
 
@@ -732,18 +743,101 @@ def section_k() -> None:
                 print(f"       {lab:<8} {x}−{y}: Δ {d.mean():+6.1f}  "
                       f"t={t:5.2f} p={pv:.4f}  {int((d > 0).sum())}/{len(d)}")
                 if w == "D" and (x, y) == ("EVO_NL", "NONE_NL"):
-                    check("K1 选择+精英 的 Δ", "+26.3", f"{d.mean():+.1f}",
-                          abs(d.mean() - 26.3) < 0.5)
+                    check("K1 选择+精英 的 Δ", "+26.2", f"{d.mean():+.1f}",
+                          abs(d.mean() - 26.2) < 0.5)
                 if w == "D" and (x, y) == ("EVO_NL", "NONE_EL"):
                     check("K2 纯选择 的 Δ", "-1.9", f"{d.mean():+.1f}",
                           abs(d.mean() + 1.9) < 0.5,
                           "★ 去掉精英混淆后选择效应消失")
-                    check("K3 纯选择 的 p", "0.764", f"{pv:.3f}",
-                          abs(pv - 0.764) < 0.01)
+                    check("K3 纯选择 的 p", "0.763", f"{pv:.3f}",
+                          abs(pv - 0.763) < 0.01)
                 if w == "D" and (x, y) == ("NONE_EL", "NONE_NL"):
-                    check("K4 纯精英 的 Δ", "+28.2", f"{d.mean():+.1f}",
-                          abs(d.mean() - 28.2) < 0.5,
+                    check("K4 纯精英 的 Δ", "+28.1", f"{d.mean():+.1f}",
+                          abs(d.mean() - 28.1) < 0.5,
                           "★ 收益全部来自保留最优个体")
+
+
+def section_n() -> None:
+    """§7 的匹配 2×2：选择 × 修复（基因池，世界 D / C）。
+
+    ★ 论文开头 “18.1 beats against 294.5, one-sixteenth” 的出处。
+      修复格来自 `sxr_fixed*`，未修复格来自 `sxr_trap*`。
+    """
+    print()
+    print("[N] §7 匹配 2×2（选择 × 修复）")
+    block: dict = {}
+    try:
+        for w, trap, fix in (("D", "sxr_trap_fix", "sxr_fixed_fix"),
+                             ("C", "sxr_trap_C_fix", "sxr_fixed_C_fix")):
+            Rt = load_results(str(ROOT / "data/V11" / trap / "exp11_*.json"))
+            Rf = load_results(str(ROOT / "data/V11" / fix / "exp11_*.json"))
+            cells = {}
+            for name, R in (("trap", Rt), ("fix", Rf)):
+                for arm in ("NONE_NL", "EVO_NL"):
+                    v = vals(R, w, arm, "held_pool_mean")
+                    cells[(name, arm)] = v
+                    print(f"   {w} {name:4s} {arm:8s}: {v.mean():6.1f} ± {v.std(ddof=1):4.1f} "
+                          f"(n={len(v)})")
+            d_sel = cells[("trap", "EVO_NL")] - cells[("trap", "NONE_NL")]
+            t_sel, p_sel = paired_t_two_sided(d_sel)
+            d_rep = cells[("fix", "NONE_NL")] - cells[("trap", "NONE_NL")]
+            t_rep, p_rep = paired_t_two_sided(d_rep)
+            main_sel = (cells[("trap", "EVO_NL")].mean() + cells[("fix", "EVO_NL")].mean()
+                        - cells[("trap", "NONE_NL")].mean()
+                        - cells[("fix", "NONE_NL")].mean()) / 2
+            main_rep = (cells[("fix", "NONE_NL")].mean() + cells[("fix", "EVO_NL")].mean()
+                        - cells[("trap", "NONE_NL")].mean()
+                        - cells[("trap", "EVO_NL")].mean()) / 2
+            print(f"   选择@未修复 {d_sel.mean():+.1f}  t={t_sel:.2f}  p={p_sel:.4f}")
+            print(f"   修复@NONE_NL {d_rep.mean():+.1f}  t={t_rep:.2f}  p={p_rep:.1e}")
+            print(f"   主效应：选择 {main_sel:+.1f}  修复 {main_rep:+.1f}  "
+                  f"比值 {main_rep / main_sel:.1f}")
+            block[w] = dict(cells=cells, t_sel=t_sel, p_sel=p_sel,
+                            t_rep=t_rep, p_rep=p_rep, main_sel=main_sel,
+                            main_rep=main_rep,
+                            ratio=main_rep / main_sel)
+    except FileNotFoundError:
+        print("   数据不存在，跳过")
+        check("N0 2×2 数据存在", "存在", "缺失", False)
+        return
+
+    D, C = block["D"], block["C"]
+    check("N1 D 四格", "27.2/37.2/313.6/339.8",
+          "/".join(f"{D['cells'][k].mean():.1f}" for k in
+                   (("trap", "NONE_NL"), ("trap", "EVO_NL"),
+                    ("fix", "NONE_NL"), ("fix", "EVO_NL"))),
+          all(abs(D["cells"][k].mean() - v) < 0.2 for k, v in
+              {(("trap", "NONE_NL")): 27.2, ("trap", "EVO_NL"): 37.2,
+               ("fix", "NONE_NL"): 313.6, ("fix", "EVO_NL"): 339.8}.items()))
+    check("N2 D 选择@未修复", "+10.1",
+          f"{D['cells'][('trap', 'EVO_NL')].mean() - D['cells'][('trap', 'NONE_NL')].mean():+.1f}",
+          abs((D["cells"][("trap", "EVO_NL")].mean()
+               - D["cells"][("trap", "NONE_NL")].mean()) - 10.1) < 0.2)
+    check("N3 D 选择 p", "0.014", f"{D['p_sel']:.3f}", abs(D["p_sel"] - 0.0144) < 0.002)
+    check("N4 D 修复@NONE_NL", "+286.5",
+          f"{D['cells'][('fix', 'NONE_NL')].mean() - D['cells'][('trap', 'NONE_NL')].mean():+.1f}",
+          abs((D["cells"][("fix", "NONE_NL")].mean()
+               - D["cells"][("trap", "NONE_NL")].mean()) - 286.5) < 0.3)
+    check("N5 D 主效应", "+18.1 / +294.5", f"{D['main_sel']:+.1f} / {D['main_rep']:+.1f}",
+          abs(D["main_sel"] - 18.1) < 0.2 and abs(D["main_rep"] - 294.5) < 0.3)
+    check("N6 C 四格", "26.0/32.7/281.1/288.4",
+          "/".join(f"{C['cells'][k].mean():.1f}" for k in
+                   (("trap", "NONE_NL"), ("trap", "EVO_NL"),
+                    ("fix", "NONE_NL"), ("fix", "EVO_NL"))),
+          all(abs(C["cells"][k].mean() - v) < 0.2 for k, v in
+              {(("trap", "NONE_NL")): 26.0, ("trap", "EVO_NL"): 32.7,
+               ("fix", "NONE_NL"): 281.1, ("fix", "EVO_NL"): 288.4}.items()))
+    check("N7 C 选择@未修复", "+6.7",
+          f"{C['cells'][('trap', 'EVO_NL')].mean() - C['cells'][('trap', 'NONE_NL')].mean():+.1f}",
+          abs((C["cells"][("trap", "EVO_NL")].mean()
+               - C["cells"][("trap", "NONE_NL")].mean()) - 6.7) < 0.2)
+    check("N8 C 选择 p", "0.012", f"{C['p_sel']:.3f}", abs(C["p_sel"] - 0.0120) < 0.002)
+    check("N9 C 修复@NONE_NL", "+255.1",
+          f"{C['cells'][('fix', 'NONE_NL')].mean() - C['cells'][('trap', 'NONE_NL')].mean():+.1f}",
+          abs((C["cells"][("fix", "NONE_NL")].mean()
+               - C["cells"][("trap", "NONE_NL")].mean()) - 255.1) < 0.3)
+    check("N10 C 主效应", "+7.0 / +255.4", f"{C['main_sel']:+.1f} / {C['main_rep']:+.1f}",
+          abs(C["main_sel"] - 7.0) < 0.2 and abs(C["main_rep"] - 255.4) < 0.3)
 
 
 def section_l() -> None:
@@ -930,6 +1024,7 @@ def main() -> int:
     section_k()
     section_l()
     section_m()
+    section_n()
 
     n_pass = sum(1 for c in CHECKS if c["ok"])
     n = len(CHECKS)
@@ -944,7 +1039,7 @@ def main() -> int:
     map_rows = [
         ("A", "历史：world B 修复前的选择效应（**不在当前论文中**）"),
         ("B", "§6.1 世界 B 的饱和"),
-        ("C1", "§6.2 世界 C 的 0/2400"),
+        ("C1–C2", "§6.2 世界 C 的 0/2400 与末代双峰"),
         ("C3–C4", "历史：EVO vs LAM（**不在当前论文中**）"),
         ("D", "§2 世界轮换口径"),
         ("E", "§4.1–4.2 呼吸修复与 2×2"),
@@ -952,10 +1047,11 @@ def main() -> int:
         ("G", "历史：N=29 从 manifest 读（由 M 取代）"),
         ("H", "§6.3 难度阶梯（**只查 3/13 个点**）"),
         ("I", "§7 world D 的基因池对比"),
-        ("J", "§7 的 2×2×2（世界均衡，按臂代数）"),
+        ("J", "历史：§7 的 2×2×2（已从论文删除，n2_lam_ablation 不再重跑）"),
         ("K", "§7 world D 的三臂对比"),
         ("L", "§3.1 的陷阱相关（47 arm-runs，末代）"),
         ("M", "§5.2 的 N=29（从归档原始轨迹重算）"),
+        ("N", "§7 的匹配 2×2（选择 × 修复，世界 D/C）"),
     ]
     lines = ["# AUDIT — V11 部分", "",
              f"**{n_pass} PASS / {n - n_pass} FAIL**（脚本：`scripts/audit_paper.py`）", ""]
