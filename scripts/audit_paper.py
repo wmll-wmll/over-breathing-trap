@@ -391,6 +391,23 @@ def section_e() -> None:
             check("E7 单调区间≈完整修复", "差值 < 5 拍",
                   f"{abs(dd.mean()):.1f} 拍", abs(dd.mean()) < 5.0,
                   "γ 修正与运动耗能是正确性补丁，无可测增益")
+            # E7b：活满率也要报配对检验——OLD_MONO 64% 高于 FIXED 58%，
+            #      不检验的话读者会以为最简的 monotone-only 反而最好。
+            fr_mo = np.array([data["B"]["OLD_MONO"][s]["n_survived"]
+                              / data["B"]["OLD_MONO"][s]["generations"]
+                              for s in ss], float)
+            fr_fx = np.array([data["B"]["FIXED"][s]["n_survived"]
+                              / data["B"]["FIXED"][s]["generations"]
+                              for s in ss], float)
+            dfr = fr_fx - fr_mo
+            tfr, pfr = paired_t_two_sided(dfr)
+            print(f"   活满率 OLD_MONO {100 * fr_mo.mean():.0f}% vs "
+                  f"FIXED {100 * fr_fx.mean():.0f}%  配对差 "
+                  f"{100 * dfr.mean():+.1f} 点  t={tfr:.2f}  p={pfr:.3f}  "
+                  f"{int((dfr > 0).sum())}/{len(dfr)}")
+            check("E7b 活满率 OLD_MONO≈FIXED", "−5.8 点, p=0.47",
+                  f"{100 * dfr.mean():+.1f} 点, p={pfr:.2f}",
+                  abs(100 * dfr.mean() + 5.8) < 0.5 and abs(pfr - 0.47) < 0.05)
 
     # E8：§6.1 的「修复前基线」来自 exp11（另一批数据），单独核
     M11: dict = {}
@@ -542,22 +559,17 @@ def section_h() -> None:
     **不学习、不选择**，只测「这个 λ 下、出生点随机、什么都不学」的存活分布。
     """
     print("\n[H] 难度阶梯（§6.3）")
-    rows: list[dict] = []
-    for f in ("data/V11/n1_calibration_low.json",
-              "data/V11/n1_calibration.json"):
-        p = ROOT / f
-        if p.exists():
-            rows.extend(json.load(open(p, encoding="utf-8")))
+    # ★ 只读 2026-11-10 的标定。`n1_calibration_low.json`（11-09）是 sandbox
+    #   修复前的代码状态，已被同一命令、同一参数的重跑取代；把它混进来会让
+    #   0.525–0.625 四个点被旧值覆盖，H2 的备注也会引用旧曲线的 29.2%。
+    p = ROOT / "data/V11/n1_calibration.json"
+    rows = json.load(open(p, encoding="utf-8")) if p.exists() else []
     if not rows:
         print("   标定数据不存在，跳过")
         check("H0 标定数据存在", "存在", "缺失", False)
         return
-    # 两份标定文件在 λ=0.60 处有重叠，去重
-    dedup: dict[float, dict] = {}
-    for r in rows:
-        dedup[round(r["gain"], 3)] = r
-    rows = [dedup[k] for k in sorted(dedup)]
-    by = dedup
+    by = {round(r["gain"], 3): r for r in rows}
+    rows = [by[k] for k in sorted(by)]
     print(f"   {'λ':>6} {'n':>4} {'均值':>7} {'活满%':>7} {'250-300%':>9}")
     for r in rows:
         print(f"   {r['gain']:>6.3f} {r['n']:>4d} {r['mean']:>7.1f} "
@@ -567,10 +579,10 @@ def section_h() -> None:
         check("H1 λ=0.5（世界 C）活满率", "0%", f"{by[0.500]['full_rate']:.1f}%",
               by[0.500]["full_rate"] == 0.0)
     if 0.525 in by:
-        check("H2 λ=0.525 活满率（悬崖）", "0.0%",
+        check("H2 λ=0.525 活满率（悬崖前）", "0.0%",
               f"{by[0.525]['full_rate']:.1f}%",
               abs(by[0.525]["full_rate"] - 0.0) < 1.0,
-              "0.50 → 0.525 活满率从 0 跳到 29.2%")
+              "sandbox 修复后的重跑；旧曲线（11-09，修复前）在这一点是 29.2%")
     if 0.550 in by:
         check("H3 λ=0.55（世界 D）活满率", "12.5%",
               f"{by[0.550]['full_rate']:.1f}%",
@@ -841,17 +853,16 @@ def section_n() -> None:
 
 
 def section_l() -> None:
-    """§3.1 陷阱：47 条唯一、同预算、**同一个静态世界**的臂-运行。
+    """§3.1 陷阱：8 代 / 350 拍预算、**同一个静态世界**、按配置合并的观测。
 
-    ★ 第七轮修正（策略梯度 detach 之后）
-      ① 新数据在 `exp9fix*`；固定学习器下 47 条全部唯一（旧数据里的
-         完全重复是坏梯度的产物）。
-      ② 主相关改用**末代存活**（图 2a 的口径）；8 代平均作为次要口径
-         一起打印，但不作为论文主指标。
-      ③ 47 条全部来自世界 A（sigma=600，光源不动），mean_light 是移动
-         与存活的结果，不是外生协变量；偏相关无效，已删除。
-      ④ 47 条来自 11 个文件 / 4 个种子 / 3 个架构，不独立；用按文件的
-         聚类 bootstrap 给区间。
+    ★ 第八轮修正（审稿人指出 47 条并非相互独立之后）
+      ① 8 代池有 47 次**执行**，但只有 **30 个不同配置**：11 个配置执行 2 次、
+         3 个执行 3 次（同 seed / arm / 架构，在不同批次组成下重跑，数值差
+         ~1e-6）。把重复执行当独立观测是伪重复，所以按配置取均值，n = 30。
+      ② 主相关仍用**末代存活**（图 2a 的口径）；8 代平均作为次要口径。
+      ③ 全部来自世界 A（sigma=600，光源不动），mean_light 是移动与存活的
+         结果，不是外生协变量；偏相关无效，已删除。
+      ④ 区间用按配置的 bootstrap（30 个配置有放回重抽）。
     """
     print()
     print("[L] 过呼吸陷阱")
@@ -862,31 +873,36 @@ def section_l() -> None:
     rows = []
     for d in dirs:
         for f in sorted((ROOT / "data/V11" / d).glob("exp8_*.json")):
-            for a, rec in json.load(open(f, encoding="utf-8"))["arms"].items():
+            j = json.load(open(f, encoding="utf-8"))
+            seed = j["args"]["seed"]
+            for a, rec in j["arms"].items():
                 h = rec.get("history") or []
                 if len(h) != 8:
                     continue
                 k = h[-1].get("mean_k")
                 if k is None or k != k:
                     continue
-                rows.append(dict(file=d, arm=a, arch=rec.get("arch", "?"),
+                rows.append(dict(seed=seed, file=d, arm=a, arch=rec.get("arch", "?"),
                                  k=float(k), b=float(rec["mean_beats"]),
                                  bl=float(h[-1]["beats"]),
                                  L=float(h[-1].get("mean_light", 0.0))))
 
-    seen, uniq = set(), []
+    groups: dict = {}
     for r in rows:
-        key = (r["arm"], round(r["k"], 9), round(r["L"], 9),
-               round(r["b"], 6), round(r["bl"], 6))
-        if key in seen:
-            continue
-        seen.add(key)
-        uniq.append(r)
+        groups.setdefault((r["seed"], r["arm"], r["arch"]), []).append(r)
+    uniq = []
+    for key, v in groups.items():
+        uniq.append(dict(seed=key[0], file=v[0]["file"], arm=key[1], arch=key[2],
+                         k=float(np.mean([x["k"] for x in v])),
+                         b=float(np.mean([x["b"] for x in v])),
+                         bl=float(np.mean([x["bl"] for x in v])),
+                         L=float(np.mean([x["L"] for x in v])),
+                         n=len(v)))
+    n_exec = sum(r["n"] for r in uniq)
     k = np.array([r["k"] for r in uniq])
     b = np.array([r["b"] for r in uniq])
     bl = np.array([r["bl"] for r in uniq])
     L = np.array([r["L"] for r in uniq])
-    files = sorted({r["file"] for r in uniq})
 
     def corr(x, y):
         mx, my = np.mean(x), np.mean(y)
@@ -895,16 +911,11 @@ def section_l() -> None:
 
     r_mean = corr(k, b)
     r_last = corr(k, bl)
-    # 按文件的聚类 bootstrap：**有放回**，同一个文件被抽中多次就按多次计入。
-    # ★ 初版写的是 `{files[j] for j in pick}`，集合把重复抽中的文件去掉了，
-    #   等价于不放回子采样，区间系统性偏窄。
+    # 按**配置**的 bootstrap：有放回重抽 30 个配置。
     rng = np.random.default_rng(0)
-    row_of_file = [np.array([i for i, row in enumerate(uniq) if row["file"] == f])
-                   for f in files]
     boot_last, boot_mean = [], []
-    for _ in range(4000):
-        pick = rng.integers(0, len(files), size=len(files))
-        idx = np.concatenate([row_of_file[j] for j in pick])
+    for _ in range(10000):
+        idx = rng.integers(0, len(uniq), size=len(uniq))
         boot_last.append(corr(k[idx], bl[idx]))
         boot_mean.append(corr(k[idx], b[idx]))
     lo, hi = np.percentile(boot_last, [2.5, 97.5])
@@ -922,29 +933,29 @@ def section_l() -> None:
     n_near = int((np.abs(gain - tgt) < 40).sum())
     unreach = int((L < 0.793).sum())
 
-    print(f"   {len(rows)} 条 → 去重后 {len(uniq)} 条（全部来自世界 A，静态光源）")
-    print(f"   末代 r = {r_last:+.4f}   聚类 95% CI [{lo:+.3f}, {hi:+.3f}]"
-          f"（{len(files)} 个文件）")
+    print(f"   {n_exec} 次执行 → {len(uniq)} 个配置（全部来自世界 A，静态光源）")
+    print(f"   末代 r = {r_last:+.4f}   配置 bootstrap 95% CI [{lo:+.3f}, {hi:+.3f}]")
     print(f"   8 代平均 r = {r_mean:+.4f}   CI [{lo_m:+.3f}, {hi_m:+.3f}]")
     print(f"   gain<0：{n_neg}/{len(uniq)}（末代 {b_neg:.0f} 拍 vs {b_pos:.0f} 拍；"
           f"8 代平均 {b_neg_m:.0f} vs {b_pos_m:.0f}）；"
           f"|gain−{tgt:.1f}|<40：{n_near}")
     print(f"   目标不可达（mean_light < 0.793）：{unreach}/{len(uniq)}")
 
-    check("L1 唯一 arm-run 数", "47", str(len(uniq)), len(uniq) == 47)
-    check("L2 末代相关 r", "-0.438", f"{r_last:.4f}", abs(r_last + 0.438) < 0.0005)
-    check("L3 聚类 bootstrap 下界", "-0.67", f"{lo:+.2f}", abs(lo + 0.67) < 0.03)
-    check("L4 聚类 bootstrap 上界", "-0.19", f"{hi:+.2f}", abs(hi + 0.19) < 0.03)
-    check("L5 净耗能 run 数", "19", str(n_neg), n_neg == 19)
-    check("L6 净耗能组末代存活", "60", f"{b_neg:.0f}", abs(b_neg - 60) < 1)
-    check("L7 净收益组末代存活", "282", f"{b_pos:.0f}", abs(b_pos - 282) < 1)
-    check("L8 贴近目标增益的 run 数", "2", str(n_near), n_near == 2)
-    check("L9 目标不可达的 run 数", "29", str(unreach), unreach == 29)
+    check("L1 配置数", "30", str(len(uniq)), len(uniq) == 30 and n_exec == 47,
+          "47 次执行按 (seed, arm, arch) 合并")
+    check("L2 末代相关 r", "-0.398", f"{r_last:.4f}", abs(r_last + 0.398) < 0.0005)
+    check("L3 配置 bootstrap 下界", "-0.645", f"{lo:+.3f}", abs(lo + 0.645) < 0.01)
+    check("L4 配置 bootstrap 上界", "-0.129", f"{hi:+.3f}", abs(hi + 0.129) < 0.01)
+    check("L5 净耗能配置数", "12", str(n_neg), n_neg == 12)
+    check("L6 净耗能组末代存活", "81", f"{b_neg:.0f}", abs(b_neg - 81) < 1)
+    check("L7 净收益组末代存活", "279", f"{b_pos:.0f}", abs(b_pos - 279) < 1)
+    check("L8 贴近目标增益的配置数", "4", str(n_near), n_near == 4)
+    check("L9 目标不可达的配置数", "16", str(unreach), unreach == 16)
 
-    print("   架构子组（47 条去重池，末代口径）：")
+    print("   架构子组（30 个配置，末代口径）：")
     for i, (a, lab, wn, wr) in enumerate(
-            (("cnn", "CNN", 34, -0.406),
-             ("transformer", "Transformer", 9, -0.964),
+            (("cnn", "CNN", 21, -0.339),
+             ("transformer", "Transformer", 5, -0.972),
              ("mlp", "MLP", 4, -0.670)), start=10):
         idx = [j for j, row in enumerate(uniq) if row["arch"] == a]
         if not idx:
@@ -1049,7 +1060,7 @@ def main() -> int:
         ("I", "§7 world D 的基因池对比"),
         ("J", "历史：§7 的 2×2×2（已从论文删除，n2_lam_ablation 不再重跑）"),
         ("K", "§7 world D 的三臂对比"),
-        ("L", "§3.1 的陷阱相关（47 arm-runs，末代）"),
+        ("L", "§3.1 的陷阱相关（47 次执行 → 30 个配置，末代）"),
         ("M", "§5.2 的 N=29（从归档原始轨迹重算）"),
         ("N", "§7 的匹配 2×2（选择 × 修复，世界 D/C）"),
     ]

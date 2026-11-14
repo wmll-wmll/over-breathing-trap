@@ -31,11 +31,11 @@ python scripts/audit_paper.py        # writes audit/AUDIT_V11.md
 python v11_digital_life/test_core.py # 129-item self-test of the physics
 ```
 
-Expect **89 / 89 checks passing**. One section is skipped and named in the
+Expect **90 / 90 checks passing**. One section is skipped and named in the
 output rather than counted either way: it recomputes an N = 29 negative control
 from archived trajectory files, and those archives (63 MB) are not distributed
-here. (The full-data run, with the archives, is 94 / 94.) Everything else — the
-correlation and its cluster bootstrap, the two 2 × 2 decompositions, the repair
+here. (The full-data run, with the archives, is 95 / 95.) Everything else — the
+correlation and its bootstrap, the two 2 × 2 decompositions, the repair
 statistics, the difficulty ladder, the metric-dependence table — is recomputed
 from the data in this repository.
 
